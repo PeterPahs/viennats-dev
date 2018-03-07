@@ -64,6 +64,8 @@
 #include <vector>
 #include <list>
 
+#include <QApplication>
+
 #ifdef _OPENMP
 #include <omp.h>
 #endif
@@ -388,7 +390,13 @@ void main_(ParameterType2& p2) {					//TODO changed from const to not const
 	}
 
 	msg::print_done();
-
+	
+	//call the visualization method for all level sets
+	Visualization Qwindow;
+	Qwindow.setWindowTitle("viennats");
+	lvlset::create_visual(*LevelSets.begin(), Qwindow);
+	Qwindow.show();
+	
 
 	msg::print_start("Add Initial Layers...");
 	proc::AddLayer(LevelSets, p.AddLayer);
@@ -430,6 +438,7 @@ void main_(ParameterType2& p2) {					//TODO changed from const to not const
 		if(pIter->ActiveLayers.size()>LevelSets.size()) assert(0);
 
 		LevelSetsType temp_levelSets;
+		
 
 		std::vector<int> layer_order;
 		for(unsigned int i=0; i<pIter->ActiveLayers.size(); i++){
@@ -440,16 +449,29 @@ void main_(ParameterType2& p2) {					//TODO changed from const to not const
 
 		//put inactive layers to new levelset ordering
 		typename LevelSetsType::iterator LSIter = LevelSets.begin(), LSIter_old;
+		
+		
+		//Write active runs to file
+		//Only for one level set at the moment
+		while(LSIter != LevelSets.end()){
+			lvlset::write_levelset_visualization(*LSIter, "test.txt");
+			++LSIter;
+		}
+		LSIter = LevelSets.begin();
+		
 
 		std::cout << "Inactive/Mask/Active: ";
 		for(unsigned int i=0; i<LevelSets.size(); ++i){
 			if(!my::stat::AnyElement<int>(layer_order, i) && (pIter->MaskLayers.empty() || pIter->MaskLayers[0] != int(i+1))){	//neither mask nor active
 				std::cout << i << ",";
 				temp_levelSets.push_back(*LSIter);
+				
 			}
 			++LSIter;
 		}
 		std::cout << '\b' << " ";
+
+
 
 		//add mask layers on top of inactive
 		if(!pIter->MaskLayers.empty()){
@@ -494,11 +516,14 @@ void main_(ParameterType2& p2) {					//TODO changed from const to not const
 		}
 
 		std::swap(LevelSets, temp_levelSets);
+		
+		
 
 		std::cout << std::endl << "AddLayer = " << pIter->AddLayer << "\n";
 		proc::AddLayer(LevelSets, pIter->AddLayer);
 		for(int i=0; i<pIter->AddLayer; i++) pIter->ActiveLayers.push_back(i+1);
 		std::cout << "Active/Total Layers: " << pIter->ActiveLayers.size() << "/" << LevelSets.size() << "\n\n";
+
 
 
 #ifdef PROCESS_CONSTANT_RATES
@@ -679,6 +704,8 @@ void main_(ParameterType2& p2) {					//TODO changed from const to not const
 */
 
 int main(int argc, char *argv[]) {
+	
+	QApplication visualTS(argc, argv);
 
   double timer = my::time::GetTime();
 
@@ -711,6 +738,7 @@ int main(int argc, char *argv[]) {
   ss << exec_time;
 	msg::print_message("Finished - exec-time: "+ss.str()+" s");
 
-	return 0;
+
+	return visualTS.exec();
 
 }

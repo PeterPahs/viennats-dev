@@ -30,6 +30,7 @@
 #include "grid.hpp"
 #include "math.hpp"
 
+
 #ifdef _OPENMP
     #include <omp.h>
 #endif
@@ -565,7 +566,9 @@ namespace lvlset {
                     }
                 }
             }
-
+			
+			
+			
             //TODO
             void print() const {
 

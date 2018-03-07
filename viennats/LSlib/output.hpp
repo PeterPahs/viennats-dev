@@ -20,6 +20,7 @@
 #include "kernel.hpp"
 #include "levelset2surface.hpp"
 #include <float.h>
+#include "visualization.hpp"
 
 namespace lvlset {
 
@@ -378,6 +379,8 @@ namespace lvlset {
 
     }
 
+
+
     template <class GridTraitsType, class LevelSetTraitsType>
     void write_levelset_opendx(const levelset<GridTraitsType, LevelSetTraitsType>& l, std::string FileName,  bool only_defined_grid_points, float limit, bool only_signs) {
         //this functions writes all defined grid points including their level set values
@@ -452,6 +455,40 @@ namespace lvlset {
 
         f.close();
     }
+    
+
+    template <class GridTraitsType, class LevelSetTraitsType>
+    void write_levelset_visualization(const levelset<GridTraitsType, LevelSetTraitsType>& ls, std::string FileName){
+		// Write coordinates of defined runs to a file
+		typedef levelset<GridTraitsType, LevelSetTraitsType> LevelSetType;
+		std::ofstream f(FileName);
+		if(f.is_open()){
+			f << "Active Points in LevelSet Structure\n" << std::endl;
+			for(typename LevelSetType::const_iterator_runs it(ls); !it.is_finished(); it.next()){
+				if(it.is_active()){
+					f << it.start_indices() << std::endl;
+				}
+			}
+			f.close();
+		}
+		
+	}
+	
+	
+	//Pass points to QtWidget in visualization.hpp
+	template <class GridTraitsType, class LevelSetTraitsType>
+	void create_visual(const levelset<GridTraitsType, LevelSetTraitsType>& ls, Visualization window){
+		
+		typedef levelset<GridTraitsType, LevelSetTraitsType> LevelSetType;
+		
+		for(typename LevelSetType::const_iterator_runs it(ls); !it.is_finished(); it.next()){
+			if(it.is_active()){
+				//z-axis ignored, set to 0.0f
+				window.addPoint((float)it.start_indices(0), (float)it.start_indices(1), 0.0f, (float)it.value2());
+			}
+		}
+		
+	}
 }
 
 #endif /*OUTPUT_HPP_*/
