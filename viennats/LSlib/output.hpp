@@ -477,7 +477,7 @@ namespace lvlset {
 	
 	//Pass points to QtWidget in visualization.hpp
 	template <class GridTraitsType, class LevelSetTraitsType>
-	void create_visual(const levelset<GridTraitsType, LevelSetTraitsType>& ls, Visualization window){
+	void create_visual(const levelset<GridTraitsType, LevelSetTraitsType>& ls, Visualization& window){
 		
 		typedef levelset<GridTraitsType, LevelSetTraitsType> LevelSetType;
 		
