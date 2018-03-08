@@ -706,7 +706,10 @@ void main_(ParameterType2& p2) {					//TODO changed from const to not const
 int main(int argc, char *argv[]) {
 	
 	QApplication visualTS(argc, argv);
-	int vret = visualTS.exec();
+	#pragma omp single
+	{
+		visualTS.exec();
+	}
 
   double timer = my::time::GetTime();
 
@@ -740,6 +743,6 @@ int main(int argc, char *argv[]) {
 	msg::print_message("Finished - exec-time: "+ss.str()+" s");
 
 
-	return vret;
+	return 0;
 
 }
