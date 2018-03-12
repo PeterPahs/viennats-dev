@@ -65,7 +65,7 @@ namespace proc {
 
 		typename LevelSetType::points_type segmentation=LS.back().get_new_segmentation();
 
-		#pragma omp for schedule(static, 1) // parallelization - Iterations divided into chunks of size 1. Each chunk is assigned to a thread
+		#pragma omp parallel for schedule(static, 1) // parallelization - Iterations divided into chunks of size 1. Each chunk is assigned to a thread
 		for (int p=0;p<= static_cast<int>(segmentation.size());++p) {
 
 			typename LevelSetType::point_type  begin_v=(p==0)?LS.back().grid().min_point_index():segmentation[p-1];
@@ -89,8 +89,8 @@ namespace proc {
 				PointMaterials[it.active_pt_id2()]=LS.size()-1-z;
 			}
 		}
+		}
 
-        }
 
 	namespace {
 
@@ -860,6 +860,8 @@ namespace proc {
 		    //if ((RelativeTime==StartTime) && (ProcessParameter.initial_output)) MakeOutput=true;
 
 		    if (!MakeOutput) if (RelativeTime==ProcessTime) break;
+
+
 
 		    //###########################
             // smooth surface level set

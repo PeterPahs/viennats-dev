@@ -44,6 +44,7 @@ endif()
 INCLUDE_DIRECTORIES(".")
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/viennats/)
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/viennats/LSlib/)
+INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/viennats/Visualization/)
 
 # Specify that the output executable is placed in the root build directory
 ################
@@ -73,8 +74,7 @@ FIND_PACKAGE(Qt5Gui REQUIRED)
 set(QT5_LIBRARIES Qt5::Widgets Qt5::Core Qt5::Gui)
 
 
-
-
+ADD_DEFINITIONS(-DGUI_ENABLED)
 
 # SPRNG ..
 #FIND_PACKAGE(SPRNG REQUIRED)

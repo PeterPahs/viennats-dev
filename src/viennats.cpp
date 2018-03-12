@@ -143,6 +143,10 @@
 #include "LSlib/levelset.hpp"
 #include "message.h"
 #include "boundaries.h"
+#include "Visualization/visualization.hpp"
+
+
+Visualization* Qwindow;
 
 
 ///GridTraitsType Contains minimum and maximum indexes in each dimensional direction, boundary conditions, and the grid spacing
@@ -390,13 +394,14 @@ void main_(ParameterType2& p2) {					//TODO changed from const to not const
 	}
 
 	msg::print_done();
-	
+
+	#ifdef GUI_ENABLED
 	//call the visualization method for all level sets
-	Visualization Qwindow;
-	Qwindow.setWindowTitle("viennats");
-	lvlset::create_visual(*LevelSets.begin(), Qwindow);
-	Qwindow.show();
-	
+	lvlset::create_visual(LevelSets.back(), *Qwindow);
+	Qwindow->update();
+	#endif
+
+
 
 	msg::print_start("Add Initial Layers...");
 	proc::AddLayer(LevelSets, p.AddLayer);
@@ -438,7 +443,7 @@ void main_(ParameterType2& p2) {					//TODO changed from const to not const
 		if(pIter->ActiveLayers.size()>LevelSets.size()) assert(0);
 
 		LevelSetsType temp_levelSets;
-		
+
 
 		std::vector<int> layer_order;
 		for(unsigned int i=0; i<pIter->ActiveLayers.size(); i++){
@@ -449,23 +454,23 @@ void main_(ParameterType2& p2) {					//TODO changed from const to not const
 
 		//put inactive layers to new levelset ordering
 		typename LevelSetsType::iterator LSIter = LevelSets.begin(), LSIter_old;
-		
-		
+
+
 		//Write active runs to file
 		//Only for one level set at the moment
-		while(LSIter != LevelSets.end()){
+		/*while(LSIter != LevelSets.end()){
 			lvlset::write_levelset_visualization(*LSIter, "test.txt");
 			++LSIter;
 		}
-		LSIter = LevelSets.begin();
-		
+		LSIter = LevelSets.begin();*/
+
 
 		std::cout << "Inactive/Mask/Active: ";
 		for(unsigned int i=0; i<LevelSets.size(); ++i){
 			if(!my::stat::AnyElement<int>(layer_order, i) && (pIter->MaskLayers.empty() || pIter->MaskLayers[0] != int(i+1))){	//neither mask nor active
 				std::cout << i << ",";
 				temp_levelSets.push_back(*LSIter);
-				
+
 			}
 			++LSIter;
 		}
@@ -516,8 +521,8 @@ void main_(ParameterType2& p2) {					//TODO changed from const to not const
 		}
 
 		std::swap(LevelSets, temp_levelSets);
-		
-		
+
+
 
 		std::cout << std::endl << "AddLayer = " << pIter->AddLayer << "\n";
 		proc::AddLayer(LevelSets, pIter->AddLayer);
@@ -699,50 +704,65 @@ void main_(ParameterType2& p2) {					//TODO changed from const to not const
 	delete [] s;
 }
 
-/**
-*	Main function: Times the whole program and passes parameters to main_()
-*/
-
-int main(int argc, char *argv[]) {
-	
-	QApplication visualTS(argc, argv);
-	#pragma omp single
-	{
-		visualTS.exec();
-	}
-
-  double timer = my::time::GetTime();
-
+void start_vts(char* inputFile){
 	msg::print_welcome();
 
 	//check intrinsic double-type
 	assert(std::numeric_limits<double>::is_iec559);
 
 	//!Read Parameters-File and populate Parameters class
-	par::Parameters p(argv[1]);
+	par::Parameters p(inputFile);
 
 	//!Set maximum number of threads
-#ifdef _OPENMP
+	#ifdef _OPENMP
 	if (p.OpenMP_threads>0) omp_set_num_threads(p.OpenMP_threads);
-#endif
+	#endif
+	std::cout << p.OpenMP_threads << " " << omp_get_max_threads() << std::endl;
 
-//!Initialize number of dimensions and execute main_(const ParameterType2) accordingly
-#ifdef DIMENSION_2
+	//!Initialize number of dimensions and execute main_(const ParameterType2) accordingly
+	#ifdef DIMENSION_2
 	if (p.Dimensions == 2)
-		main_<2, par::Parameters> (p);
-#endif
+	main_<2, par::Parameters> (p);
+	#endif
 
-#ifdef DIMENSION_3
+	#ifdef DIMENSION_3
 	if (p.Dimensions == 3)
-		main_<3, par::Parameters> (p);
-#endif
+	main_<3, par::Parameters> (p);
+	#endif
+}
 
-  double exec_time = my::time::GetTime()-timer;
-  std::stringstream ss;
-  ss << exec_time;
+
+
+/**
+*	Main function: Times the whole program and passes parameters to main_()
+*/
+
+int main(int argc, char *argv[]) {
+	double timer = my::time::GetTime();
+	int ret_val=0;
+
+	#ifdef GUI_ENABLED
+	//Spawn GUI thread and worker thread
+	//omp_set_nested(true);
+	std::cout << "Started GUI." << std::endl;
+	QApplication visualTS(argc, argv);
+	Qwindow = new Visualization(argv[1]);
+	Qwindow->setWindowTitle("ViennaTS");
+	Qwindow->show();
+	ret_val = visualTS.exec();
+
+	delete Qwindow;
+	#endif
+
+	#ifndef GUI_ENABLED
+	start_vts(argv[1]);
+	#endif
+
+	double exec_time = my::time::GetTime()-timer;
+	std::stringstream ss;
+	ss << exec_time;
 	msg::print_message("Finished - exec-time: "+ss.str()+" s");
 
-
-	return 0;
+	return ret_val;
 
 }

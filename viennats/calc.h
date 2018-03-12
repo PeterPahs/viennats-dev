@@ -254,6 +254,7 @@ namespace calc {
                 //DistancesToReceiver.push_back(dist);
             }
         }
+
     }
 
   template <class LS> void CalculateCurvatureVectors(const LS& l, std::vector<double>& CurvatureVectors, bool initialized) {
