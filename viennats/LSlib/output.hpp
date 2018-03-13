@@ -20,7 +20,7 @@
 #include "kernel.hpp"
 #include "levelset2surface.hpp"
 #include <float.h>
-#include "visualization.hpp"
+
 
 namespace lvlset {
 
@@ -455,8 +455,8 @@ namespace lvlset {
 
         f.close();
     }
-    
 
+/*
     template <class GridTraitsType, class LevelSetTraitsType>
     void write_levelset_visualization(const levelset<GridTraitsType, LevelSetTraitsType>& ls, std::string FileName){
 		// Write coordinates of defined runs to a file
@@ -471,24 +471,8 @@ namespace lvlset {
 			}
 			f.close();
 		}
-		
-	}
-	
-	
-	//Pass points to QtWidget in visualization.hpp
-	template <class GridTraitsType, class LevelSetTraitsType>
-	void create_visual(const levelset<GridTraitsType, LevelSetTraitsType>& ls, Visualization& window){
-		
-		typedef levelset<GridTraitsType, LevelSetTraitsType> LevelSetType;
-		
-		for(typename LevelSetType::const_iterator_runs it(ls); !it.is_finished(); it.next()){
-			if(it.is_active()){
-				//z-axis ignored, set to 0.0f
-				window.addPoint((float)it.start_indices(0), (float)it.start_indices(1), 0.0f, (float)it.value2());
-			}
-		}
-		
-	}
+
+	}*/
 }
 
 #endif /*OUTPUT_HPP_*/

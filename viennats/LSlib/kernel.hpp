@@ -566,9 +566,9 @@ namespace lvlset {
                     }
                 }
             }
-			
-			
-			
+
+
+
             //TODO
             void print() const {
 
