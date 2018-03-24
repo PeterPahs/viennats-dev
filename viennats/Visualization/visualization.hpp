@@ -26,10 +26,26 @@ public:
     //~Visualization();
 
     //Add point to plot
-    //TODO use qreal = double instead of float
+    //using float and not double due to defined Qt methods
     void addPoint(float x, float y, float z, float dist){
 		if(abs(dist) <= 1){
+			if(z != 0.0){
+				x += 0.1*z;
+				y += 0.5*z;
+			}
 			PointVector.append(QVector4D(x,y,z,dist));
+			if(x < minScale){
+				minScale = x;
+			}
+			if(y < minScale){
+				minScale = y;
+			}
+			if(x > maxScale){
+				maxScale = x;
+			}
+			if(y > maxScale){
+				maxScale = y;
+			}
 		}
     }
 
@@ -48,6 +64,8 @@ public:
         connect(thread, SIGNAL(started()), worker, SLOT(doWork()));
         connect(worker, SIGNAL(finished()), thread, SLOT(quit()), Qt::DirectConnection);
         worker->requestWork();
+        minScale = 0.0;
+        maxScale = 0.0;
     }
 
     ~Visualization(){
@@ -64,25 +82,28 @@ protected:
         //create QPainter
         QPainter painter(this);
         QPen pen(Qt::black);
-
+        pen.setCapStyle(Qt::RoundCap);
+		
         //center coord.
         QMatrix mat;
         mat.translate(width()/2, height()/2);
-        mat.scale(5, -5); //Depending on range of points, negative y axis for cartesian
+        float scaleTemp = maxScale - minScale;
+        scaleTemp = (width() / scaleTemp) / 2;
+        mat.scale(scaleTemp, -scaleTemp); //Depending on range of points, negative y axis for cartesian
         painter.setMatrix(mat);
 
 
-        //Draw coord.
+        /*Draw coord.
         pen.setWidthF(0.1f);
         pen.setCapStyle(Qt::RoundCap);
         painter.setPen(pen);
         painter.drawLine(0,0,10,0);
         painter.drawLine(0,0,0,10);
+        * */
 
         //Draw points
         //If positive -> color green, else red
         //If dist = 0 -> color black, size 0.5f
-        //size of point = dist = tPoint.w()
         QVector4D tPoint;
         foreach (tPoint, PointVector) {
             if(tPoint.w() > 0){
@@ -105,7 +126,8 @@ protected:
     }
 
 public:
-    QVector<QVector4D> PointVector; //Only stores float, need struct with qreal TODO
+    QVector<QVector4D> PointVector;
+    float minScale, maxScale;
 };
 
 
@@ -116,33 +138,13 @@ namespace lvlset{
 
         for(typename LevelSetType::const_iterator_runs it(ls); !it.is_finished(); it.next()){
             if(it.is_active()){
-                //z-axis ignored, set to 0.0f
+                //cast values to float
                 window.addPoint((float)it.start_indices(0), (float)it.start_indices(1), (float)it.start_indices(2), (float)it.value2());
             }
         }
 
     }
 }
-
-/*
- * #include "visualization.hpp"
-#include <QtGui>
-#include <QApplication>
-
-int main(int argc, char *argv[])
-{
-    QApplication app(argc, argv);
-    Visualization window;
-
-    window.addPoint(QVector4D(4,5,0,0.3f));
-    window.addPoint(QVector4D(-2,-1,2,-1));
-
-    window.setWindowTitle("viennats");
-    window.show();
-
-    return app.exec();
-}
-* */
 
 
 #endif // VISUALIZATION_H
