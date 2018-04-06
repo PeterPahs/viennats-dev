@@ -8,8 +8,8 @@
 #include <QVector>
 #include <QVector4D>
 #include <QThread>
+#include <QMatrix4x4>
 #include <iostream>
-
 
 //#include "kernel.hpp"
 
@@ -28,24 +28,9 @@ public:
     //Add point to plot
     //using float and not double due to defined Qt methods
     void addPoint(float x, float y, float z, float dist){
+
 		if(abs(dist) <= 1){
-			if(z != 0.0){
-				x += 0.1*z;
-				y += 0.5*z;
-			}
-			PointVector.append(QVector4D(x,y,z,dist));
-			if(x < minScale){
-				minScale = x;
-			}
-			if(y < minScale){
-				minScale = y;
-			}
-			if(x > maxScale){
-				maxScale = x;
-			}
-			if(y > maxScale){
-				maxScale = y;
-			}
+				PointVector.append(QVector4D(x,y,z,dist));
 		}
     }
 
@@ -64,8 +49,6 @@ public:
         connect(thread, SIGNAL(started()), worker, SLOT(doWork()));
         connect(worker, SIGNAL(finished()), thread, SLOT(quit()), Qt::DirectConnection);
         worker->requestWork();
-        minScale = 0.0;
-        maxScale = 0.0;
     }
 
     ~Visualization(){
@@ -83,23 +66,19 @@ protected:
         QPainter painter(this);
         QPen pen(Qt::black);
         pen.setCapStyle(Qt::RoundCap);
+        
+        //create proj. matrix
+        projMat = new QMatrix4x4(1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1);
+        modelMat = new QMatrix4x4(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1);
+        
+        
 		
         //center coord.
         QMatrix mat;
-        mat.translate(width()/2, height()/2);
-        float scaleTemp = maxScale - minScale;
-        scaleTemp = (width() / scaleTemp) / 2;
-        mat.scale(scaleTemp, -scaleTemp); //Depending on range of points, negative y axis for cartesian
+        mat.translate(width()/2, height()/2); 
+        mat.scale(3, -3); //Depending on range of points, negative y axis for cartesian
         painter.setMatrix(mat);
 
-
-        /*Draw coord.
-        pen.setWidthF(0.1f);
-        pen.setCapStyle(Qt::RoundCap);
-        painter.setPen(pen);
-        painter.drawLine(0,0,10,0);
-        painter.drawLine(0,0,0,10);
-        * */
 
         //Draw points
         //If positive -> color green, else red
@@ -119,15 +98,20 @@ protected:
 				pen.setWidthF(0.5f);
 			}
             painter.setPen(pen);
-            painter.drawPoint(tPoint.toPointF()); //Only takes x,y as coordinates
+            
+            QVector3D temp = tPoint.toVector3D();
+            temp.project(modelMat, projMat, QRect(QPoint(-50,50),QPoint(50,-50)));
+            
+            painter.drawPoint(temp.toPointF()); //Only takes x,y as coordinates
         }
 
 
     }
 
-public:
+private:
     QVector<QVector4D> PointVector;
-    float minScale, maxScale;
+    QMatrix4x4* projMat;
+    QMatrix4x4* modelMat;
 };
 
 
@@ -144,6 +128,7 @@ namespace lvlset{
         }
 
     }
+
 }
 
 
