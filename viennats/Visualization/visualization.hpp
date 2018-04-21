@@ -11,6 +11,7 @@
 #include <QVector>
 #include <QWidget>
 #include <QtGui>
+//#include <QPainter>
 
 #include <GL/glu.h>
 
@@ -52,7 +53,8 @@ public:
 		context->setFormat(format);
 		context->create();
 		context->makeCurrent(this);
-		context->functions();
+		
+		QOpenGLFunctions glFunc(context);
         
     }
 
@@ -111,18 +113,26 @@ protected:
 			temp = PointVector.at(i);
 			glPushMatrix();
 			glTranslatef(temp.x(), temp.y(), temp.z());
-			solidSphere(1.0, 10, 10, temp.w());
+			if(temp.w() < 0.f){ //red
+				solidSphere(1.0, 10, 10, 1.0f, 0.f, 0.f);
+			}
+			else if(temp.w() > 0.f){ //green
+				solidSphere(1.0, 10, 10, 10.f, 1.0f, 0.f);
+			}
+			else{ //black
+				solidSphere(1.0, 10, 10, 0.f, 0.f, 0.f);
+			}
 			glPopMatrix();
 		}
 		
 	}
 	
-	void paintEvent(QPaintEvent *event){
+	void paintEvent(QPaintEvent *){
 		paintGL();
 		this->update();
 	}
 	
-	void resizeEvent(QResizeEvent *event){
+	void resizeEvent(QResizeEvent *){
 		resizeGL(this->width(), this->height());
 		this->update();
 	}
@@ -136,19 +146,9 @@ public:
 	}
 	
 private:
-	void solidSphere(GLdouble radius, GLint slices, GLint stacks, float dist){
-		if(dist < 0.f){
-			glColor3f(1.0f, 0.f, 0.f); //red if dist is negative
-		}
-		else if(dist > 0.f){
-			glColor3f(0.f, 1.0f, 0.f); //green if dist is positive
-		}
-		else {
-			glColor3f(0.f, 0.f, 0.f); //black if dist is zero
-		}
-		
-		//glColor3f(1.0f, 0.f, 0.f);
+	void solidSphere(GLdouble radius, GLint slices, GLint stacks, float colX, float colY, float colZ){
 		glBegin(GL_LINE_LOOP);
+		glColor3f(colX, colY, colZ);
 		GLUquadricObj* quadric = gluNewQuadric();
 		gluQuadricDrawStyle(quadric, GLU_FILL);
 		gluSphere(quadric, radius, slices, stacks);
@@ -168,6 +168,7 @@ namespace lvlset{
 
         for(typename LevelSetType::const_iterator_runs it(ls); !it.is_finished(); it.next()){
             if(it.is_active()){
+				//std::cout << it.value2() << std::endl;
                 window.addPoint((float)it.start_indices(0), (float)it.start_indices(1), (float)it.start_indices(2), (float)it.value2());
             }
         }
