@@ -64,7 +64,9 @@
 #include <vector>
 #include <list>
 
-#include <QApplication>
+#ifdef GUI_ENABLED
+#include <QtWidgets/QApplication>
+#endif
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -747,7 +749,7 @@ int main(int argc, char *argv[]) {
 	std::cout << "Started GUI." << std::endl;
 	QApplication visualTS(argc, argv);
 	Qwindow = new Visualization(argv[1]);
-	Qwindow->setTitle("ViennaTS");
+	Qwindow->setWindowTitle("ViennaTS");
 	Qwindow->resize(800, 600);
 	Qwindow->show();
 	ret_val = visualTS.exec();
