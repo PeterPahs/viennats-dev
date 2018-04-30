@@ -74,16 +74,36 @@ public:
     container->setFocusPolicy(Qt::StrongFocus);
     container->setWindowTitle(QStringLiteral("ViennaTS"));
 
+    graph->activeTheme()->setType(Q3DTheme::ThemePrimaryColors);
     graph->setShadowQuality(QAbstract3DGraph::ShadowQualityNone);
     graph->scene()->activeCamera()->setCameraPreset(Q3DCamera::CameraPresetFront);
 
+    QScatterDataProxy *pProxy = new QScatterDataProxy; //proxy handles adding, removing, changing data items
+    QScatterDataProxy *nProxy = new QScatterDataProxy;
+    QScatterDataProxy *zProxy = new QScatterDataProxy;
+    graph->addSeries(new QScatter3DSeries(pProxy)); //series holds the data/points for the graph.
+    graph->addSeries(new QScatter3DSeries(nProxy));
+    graph->addSeries(new QScatter3DSeries(zProxy));
+
+
+    // Index 0: positive - green, 1: negative - red, 2: zero - black
+    for(int i = 0; i<3; i++){
+      graph->addSeries(new QScatter3DSeries);
+      graph->seriesList().at(i)->setMesh(QAbstract3DSeries::MeshSphere);
+      graph->seriesList().at(i)->setMeshSmooth(false);
+      graph->seriesList().at(i)->setItemLabelFormat(QStringLiteral("@xTitle: @xLabel @yTitle: @yLabel @zTitle: @zLabel"));
+    }
+    graph->seriesList().at(0)->setBaseColor(Qt::green);
+    graph->seriesList().at(1)->setBaseColor(Qt::red);
+    graph->seriesList().at(2)->setBaseColor(Qt::black);
+/*
     QScatterDataProxy *proxy = new QScatterDataProxy;
     QScatter3DSeries *seriesPos = new QScatter3DSeries(proxy);
     seriesPos->setItemLabelFormat(QStringLiteral("@xTitle: @xLabel @yTitle: @yLabel @zTitle: @zLabel"));
     seriesPos->setBaseColor(Qt::green);
     seriesPos->setMesh(QAbstract3DSeries::MeshSphere);
     seriesPos->setMeshSmooth(false);
-/*
+
     QScatter3DSeries *seriesNeg = new QScatter3DSeries(proxy);
     seriesNeg->setItemLabelFormat(QStringLiteral("@xTitle: @xLabel @yTitle: @yLabel @zTitle: @zLabel"));
     seriesNeg->setBaseColor(Qt::red);
@@ -95,9 +115,9 @@ public:
     seriesZero->setBaseColor(Qt::black);
     seriesZero->setMesh(QAbstract3DSeries::MeshSphere);
     seriesZero->setMeshSmooth(false);
-*/
+
     graph->addSeries(seriesPos);
-/*    graph->addSeries(seriesNeg);
+    graph->addSeries(seriesNeg);
     graph->addSeries(seriesZero);
 */
     //addData();
@@ -110,7 +130,41 @@ public:
     graph->axisY()->setTitle("Y");
     graph->axisZ()->setTitle("Z");
 
+    if(pCount > 0){
+      pDat->resize(pCount);
+      pPtr = &pDat->first();
+    }
+    if(nCount > 0){
+      nDat->resize(nCount);
+      nPtr = &nDat->first();
+    }
+    if(zCount > 0){
+      zDat->resize(zCount);
+      zPtr = &zDat->first();
+    }
 
+    if(!PointVector.isEmpty()){
+      QVector4D temp;
+      for(int i=0; i<PointVector.size(); i++){
+        temp = PointVector.at(i);
+        if(temp.w() > 0){
+          pPtr->setPosition(temp.toVector3D());
+          pPtr++;
+        }
+        else if(temp.w() < 0){
+          nPtr->setPosition(temp.toVector3D());
+          nPtr++;
+        }
+        else{
+          zPtr->setPosition(temp.toVector3D());
+          zPtr++;
+        }
+      }
+      graph->seriesList().at(0)->dataProxy()->resetArray(pDat);
+      graph->seriesList().at(1)->dataProxy()->resetArray(nDat);
+      graph->seriesList().at(2)->dataProxy()->resetArray(zDat);
+    }
+  /*
     //Add the points to graph
     if(!PointVector.isEmpty()){
       QScatterDataArray *dat = new QScatterDataArray;
@@ -122,19 +176,45 @@ public:
       }
       graph->seriesList().at(0)->dataProxy()->resetArray(dat);
     }
-
+*/
   }
 
 	void addPoint(float x, float y, float z, float dist){
 		if(fabsf(dist) <= 1){
-      PointVector.append(QVector3D(x,y,z));
+      PointVector.append(QVector4D(x,y,z, dist));
+      if(dist < 0){
+        nCount++;
+      }
+      else if(dist > 0){
+        pCount++;
+      }
+      else {
+        zCount++;
+      }
     }
 	}
 
+  void resetData(){
+    if(!PointVector.isEmpty()){
+      PointVector.clear();
+    }
+    pCount = 0;
+    zCount = 0;
+    nCount = 0;
+  }
+
 private:
-  QVector<QVector3D> PointVector;
+  QVector<QVector4D> PointVector;
   Q3DScatter *graph;
-  QAbstract3DSeries::Mesh m_style;
+  int pCount;
+  int nCount;
+  int zCount;
+  QScatterDataArray *pDat = new QScatterDataArray;
+  QScatterDataArray *nDat = new QScatterDataArray;
+  QScatterDataArray *zDat = new QScatterDataArray;
+  QScatterDataItem *pPtr;
+  QScatterDataItem *nPtr;
+  QScatterDataItem *zPtr;
 
 };
 
@@ -142,6 +222,7 @@ namespace lvlset{
     //Pass points to Qt in visualization.hpp
     template <class LevelSetType>
     void create_visual(const LevelSetType& ls, Visualization& window){
+        window.resetData();
         for(typename LevelSetType::const_iterator_runs it(ls); !it.is_finished(); it.next()){
             if(it.is_active()){
 				//std::cout << it.value2() << std::endl;
