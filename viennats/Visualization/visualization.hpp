@@ -74,7 +74,10 @@ public:
     container->setFocusPolicy(Qt::StrongFocus);
     container->setWindowTitle(QStringLiteral("ViennaTS"));
 
+
     graph->activeTheme()->setType(Q3DTheme::ThemePrimaryColors);
+    graph->setAspectRatio(1.0);
+    graph->setHorizontalAspectRatio(0.0);
     graph->setShadowQuality(QAbstract3DGraph::ShadowQualityNone);
     graph->scene()->activeCamera()->setCameraPreset(Q3DCamera::CameraPresetFront);
 
@@ -91,7 +94,8 @@ public:
       graph->addSeries(new QScatter3DSeries);
       graph->seriesList().at(i)->setMesh(QAbstract3DSeries::MeshSphere);
       graph->seriesList().at(i)->setMeshSmooth(false);
-      graph->seriesList().at(i)->setItemLabelFormat(QStringLiteral("@xTitle: @xLabel @yTitle: @yLabel @zTitle: @zLabel"));
+      graph->seriesList().at(i)->setItemLabelFormat(QStringLiteral("@zTitle: @zLabel @xTitle: @xLabel @yTitle: @yLabel"));
+      //graph->seriesList().at(i)->setItemLabelVisible(false);
     }
     graph->seriesList().at(0)->setBaseColor(Qt::green);
     graph->seriesList().at(1)->setBaseColor(Qt::red);
@@ -126,9 +130,10 @@ public:
   }
 
   void addData(){
-    graph->axisX()->setTitle("X");
-    graph->axisY()->setTitle("Y");
-    graph->axisZ()->setTitle("Z");
+    //z now showing up, x towards eys
+    graph->axisX()->setTitle("Y");
+    graph->axisY()->setTitle("Z");
+    graph->axisZ()->setTitle("X");
 
     if(pCount > 0){
       pDat->resize(pCount);
@@ -181,7 +186,7 @@ public:
 
 	void addPoint(float x, float y, float z, float dist){
 		if(fabsf(dist) <= 1){
-      PointVector.append(QVector4D(x,y,z, dist));
+      PointVector.append(QVector4D(y,z,x, dist)); //x pointing towards eye, z up
       if(dist < 0){
         nCount++;
       }
@@ -203,6 +208,7 @@ public:
     nCount = 0;
   }
 
+
 private:
   QVector<QVector4D> PointVector;
   Q3DScatter *graph;
@@ -221,12 +227,16 @@ private:
 namespace lvlset{
     //Pass points to Qt in visualization.hpp
     template <class LevelSetType>
-    void create_visual(const LevelSetType& ls, Visualization& window){
+    void create_visual(const LevelSetType& ls, const int D, Visualization& window){
         window.resetData();
         for(typename LevelSetType::const_iterator_runs it(ls); !it.is_finished(); it.next()){
             if(it.is_active()){
-				//std::cout << it.value2() << std::endl;
+              if(D>2){
                 window.addPoint((float)it.start_indices(0), (float)it.start_indices(1), (float)it.start_indices(2), (float)it.value2());
+              }
+              else {
+                window.addPoint((float)it.start_indices(0), (float)it.start_indices(1), 0.f, (float)it.value2());
+              }
             }
         }
         window.addData();

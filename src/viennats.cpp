@@ -399,7 +399,7 @@ void main_(ParameterType2& p2) {					//TODO changed from const to not const
 
 	#ifdef GUI_ENABLED
 	//call the visualization method for all level sets
-	lvlset::create_visual(LevelSets.back(), *Qwindow);
+	lvlset::create_visual(LevelSets.back(), D, *Qwindow);
 	Qwindow->update();
 	#endif
 
@@ -456,15 +456,6 @@ void main_(ParameterType2& p2) {					//TODO changed from const to not const
 
 		//put inactive layers to new levelset ordering
 		typename LevelSetsType::iterator LSIter = LevelSets.begin(), LSIter_old;
-
-
-		//Write active runs to file
-		//Only for one level set at the moment
-		/*while(LSIter != LevelSets.end()){
-			lvlset::write_levelset_visualization(*LSIter, "test.txt");
-			++LSIter;
-		}
-		LSIter = LevelSets.begin();*/
 
 
 		std::cout << "Inactive/Mask/Active: ";
