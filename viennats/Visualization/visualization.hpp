@@ -79,7 +79,7 @@ public:
     graph->setAspectRatio(1.0);
     graph->setHorizontalAspectRatio(0.0);
     graph->setShadowQuality(QAbstract3DGraph::ShadowQualityNone);
-    graph->scene()->activeCamera()->setCameraPreset(Q3DCamera::CameraPresetFront);
+    graph->scene()->activeCamera()->setCameraPreset(Q3DCamera::CameraPresetIsometricRight);
 
     QScatterDataProxy *pProxy = new QScatterDataProxy; //proxy handles adding, removing, changing data items
     QScatterDataProxy *nProxy = new QScatterDataProxy;
