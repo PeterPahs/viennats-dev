@@ -145,6 +145,15 @@ public:
       graph->seriesList().at(0)->dataProxy()->resetArray(pDat);
       graph->seriesList().at(1)->dataProxy()->resetArray(nDat);
       graph->seriesList().at(2)->dataProxy()->resetArray(zDat);
+
+
+#ifdef VERBOSE
+      std::cout << "Count of pos: " << graph->seriesList().at(0)->dataProxy()->itemCount() << std::endl;
+      std::cout << "Count of neg: " << graph->seriesList().at(1)->dataProxy()->itemCount() << std::endl;
+      std::cout << "Count of zer: " << graph->seriesList().at(2)->dataProxy()->itemCount() << std::endl;
+      //std::cout << "Current FPS: " << graph->currentFps() << std::endl;
+#endif
+
     }
   /*
     //Add the points to graph
