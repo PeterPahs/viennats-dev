@@ -527,119 +527,119 @@ void main_(ParameterType2& p2) {					//TODO changed from const to not const
 #ifdef PROCESS_CONSTANT_RATES
 		if (pIter->ModelName == "ConstantRates") {
 			model::ConstantRates m(pIter->ModelParameters, pIter->MaskLayer);
-			proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info);
+			proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info, Qwindow);
 		}
 #endif
 
 #ifdef PROCESS_SIMPLE_DEPOSITION
 		if (pIter->ModelName == "SimpleDeposition") {
 			model::SimpleDeposition m(pIter->ModelParameters);
-			proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info);
+			proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info, Qwindow);
 		}
 #endif
 
 #ifdef PROCESS_SF6_O2_PLASMA_ETCHING
 		if (pIter->ModelName == "SF6_O2PlasmaEtching") {
 			model::SF6_O2PlasmaEtching m(pIter->ModelParameters);
-			proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info);
+			proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info, Qwindow);
 		}
 #endif
 
 #ifdef PROCESS_Cl2_N2_ETCHING
 		if(pIter->ModelName == "Cl2_N2Etching"){
 			model::Cl2_N2Etching<typename ParameterType2::ProcessParameterType> m(pIter);
-			proc::ExecuteProcess(LevelSets, m, p,*pIter, output_info);
+			proc::ExecuteProcess(LevelSets, m, p,*pIter, output_info, Qwindow);
 		}
 #endif
 
 #ifdef PROCESS_Cl2_CH4_PLASMA_ETCHING
 		if (pIter->ModelName == "Cl2_CH4PlasmaEtching") {
 			model::Cl2_CH4PlasmaEtching<typename ParameterType2::ProcessParameterType> m(pIter);
-			proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info);
+			proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info, Qwindow);
 		}
 #endif
 
 #ifdef PROCESS_BCl3_PLASMA_ETCHING
 		if (pIter->ModelName == "BCl3PlasmaEtching") {
 			model::BCl3PlasmaEtching m(pIter->ModelParameters);
-			proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info);
+			proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info, Qwindow);
 		}
 #endif
 
 #ifdef PROCESS_SiO2_PLASMA_ETCHING
 		if (pIter->ModelName == "SiO2_PlasmaEtching") {
 			model::SiO2_PlasmaEtching m(pIter->ModelParameters);
-			proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info);
+			proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info, Qwindow);
 		}
 #endif
 
 #ifdef PROCESS_SF6_CH2F2_PLASMA_ETCHING
 		if (pIter->ModelName == "SF6_CH2F2PlasmaEtching") {
 			model::SF6_CH2F2_PlasmaEtching<typename ParameterType2::ProcessParameterType> m(pIter);
-			proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info);
+			proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info, Qwindow);
 		}
 #endif
 
 #ifdef PROCESS_N2_PLASMA_ETCHING
 		if(pIter->ModelName == "N2_Flash"){
 			model::N2_FLASH m(pIter->ModelParameters);
-			proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info);
+			proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info, Qwindow);
 		}
 #endif
 
 #ifdef PROCESS_HBr_O2_PLASMA_ETCHING
 		if (pIter->ModelName == "HBr_O2PlasmaEtching") {
 			model::HBr_O2_PlasmaEtching<typename ParameterType2::ProcessParameterType> m(pIter);
-			proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info);
+			proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info, Qwindow);
 		}
 #endif
 
 #ifdef PROCESS_CFx_DEPOSITION
 		if (pIter->ModelName == "CFx_Deposition") {
 			model::CFx_Deposition m(pIter->ModelParameters);
-			proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info);
+			proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info, Qwindow);
 		}
 #endif
 
 #ifdef PROCESS_HfO2_DEPOSITION
 		if (pIter->ModelName == "HfO2_Deposition") {
 			model::HfO2_Deposition m(pIter->ModelParameters);
-			proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info);
+			proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info, Qwindow);
 		}
 #endif
 
 #ifdef PROCESS_NONLINEAR_DEPOSITION
 		if (pIter->ModelName == "NonlinearDeposition") {
 			model::NonlinearDeposition m(pIter->ModelParameters);
-			proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info);
+			proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info, Qwindow);
 		}
 #endif
 
 #ifdef PROCESS_TWOSPECIES_DEPOSITION
 		if (pIter->ModelName == "TwoSpeciesDeposition") {
 			model::TwoSpeciesDeposition m(pIter->ModelParameters);
-			proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info);
+			proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info, Qwindow);
 		}
 #endif
 
 #ifdef PROCESS_WET_ETCHING
 		if (pIter->ModelName == "WetEtching") {
 			model::WetEtching m(pIter->ModelParameters);
-			proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info);
+			proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info, Qwindow);
 		}
 #endif
 
 #ifdef PROCESS_FIB
 		if (pIter->ModelName == "FIB") {
 			model::FIB m(pIter->ModelParameters);
-			proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info);
+			proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info, Qwindow);
 		}
 #endif
 
 #ifdef PROCESS_CALCULATEFLUX
 		if (pIter->ModelName == "CalculateFlux") {
 			model::CalculateFlux m(pIter->ModelParameters, D);
-			proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info);
+			proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info, Qwindow);
 		}
 #endif
 
@@ -670,7 +670,7 @@ void main_(ParameterType2& p2) {					//TODO changed from const to not const
                         if ((i%12==6*(pIter->ALDStep-1))||(i%12==6*(pIter->ALDStep-1)+1)||(i%12==5)||(i%12==11))
                             CoveragesALD_TiN[i]=0.;
                     model::TiN_ALD m(pIter->ModelParameters, pIter->ALDStep);
-                    proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info, CoveragesALD_TiN);
+                    proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info, CoveragesALD_TiN, Qwindow);
         }
 #endif
 
@@ -680,14 +680,14 @@ void main_(ParameterType2& p2) {					//TODO changed from const to not const
                         if ((i%12==6*(pIter->ALDStep-1))||(i%12==6*(pIter->ALDStep-1)+1)||(i%12==5)||(i%12==11))
                             CoveragesPEALD_TiN[i]=0.;
                     model::TiN_PEALD m(pIter->ModelParameters, pIter->ALDStep);
-                    proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info, CoveragesPEALD_TiN);
+                    proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info, CoveragesPEALD_TiN, Qwindow);
         	}
 #endif
 
 #ifdef PROCESS_TiO2_ALD
 		if (pIter->ModelName == "TiO2_ALD") {
 			model::TiO2_ALD m(pIter->ModelParameters);
-			proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info, CoveragesALD_TiO2);
+			proc::ExecuteProcess(LevelSets, m, p, *pIter, output_info, CoveragesALD_TiO2, Qwindow);
         	}
 #endif
 

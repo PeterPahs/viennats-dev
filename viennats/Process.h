@@ -37,6 +37,8 @@
 #include "./LSlib/vector.hpp"
 #include "boundaries.h"
 
+#include "./Visualization/visualization.hpp"
+
 ///Process related objects and methods.
 namespace proc {
 
@@ -739,7 +741,7 @@ namespace proc {
     }
 
 	//Topography simulation - execute a topography changing process according to required model and parameters
-	template <class LevelSetsType, class ModelType, class ParameterType, class ProcessParameterType, class OutputInfoType> void ExecuteProcess(
+	template <class LevelSetsType, class ModelType, class ParameterType, class ProcessParameterType, class OutputInfoType, class Visualization> void ExecuteProcess(
 				LevelSetsType& LevelSets,
 				const ModelType& Model,
 				const ParameterType& Parameter,
@@ -748,6 +750,7 @@ namespace proc {
                                 std::vector<double>& Coverages//,
 //                                std::vector<double> Rates//,
 //                                int step_cycle
+			,Visualization *Qwindow
 		) {
     const int D=LevelSetsType::value_type::dimensions;
 
@@ -1095,6 +1098,12 @@ namespace proc {
 									oss << "Writing output " << output_info.output_counter;
 									oss << " (time = " << RelativeTime << ")...";
 									msg::print_start(oss.str());
+
+									#ifdef GUI_ENABLED
+									//call the visualization method for all level sets
+									lvlset::create_visual(LevelSets.back(), D, *Qwindow);
+									Qwindow->update();
+									#endif
                 }
 
                 typename LevelSetsType::iterator it=LevelSets.begin();
@@ -1130,6 +1139,12 @@ namespace proc {
                 }
 
                 output_info.output_counter++;
+
+								#ifdef GUI_ENABLED
+								//call the visualization method for all level sets
+								lvlset::create_visual(LevelSets.back(), D, *Qwindow);
+								//Qwindow->update();
+								#endif
 
                 msg::print_done();
             }
@@ -1277,12 +1292,13 @@ namespace proc {
 	}
 
 	///Includes loop over full process time to run the simulation.
-	template <class LevelSetsType, class ModelType, class ParameterType, class ProcessParameterType, class OutputInfoType> void ExecuteProcess(
+	template <class LevelSetsType, class ModelType, class ParameterType, class ProcessParameterType, class OutputInfoType, class Visualization> void ExecuteProcess(
 				LevelSetsType& LevelSets,
 				const ModelType& Model,
 				const ParameterType& Parameter,
 				const ProcessParameterType& ProcessParameter,
-				OutputInfoType & output_info
+				OutputInfoType & output_info,
+				Visualization *Qwindow
 		) {
 		const int D=LevelSetsType::value_type::dimensions;
 
@@ -1635,6 +1651,12 @@ namespace proc {
 					oss << "Writing output " << output_info.output_counter;
 					oss << " (time = " << RelativeTime << ")...";
 					msg::print_start(oss.str());
+
+					#ifdef GUI_ENABLED
+					//call the visualization method for all level sets
+					lvlset::create_visual(LevelSets.back(), D, *Qwindow);
+					Qwindow->update();
+					#endif
                 }
 
                 typename LevelSetsType::iterator it=LevelSets.begin();

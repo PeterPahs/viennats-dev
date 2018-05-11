@@ -92,7 +92,8 @@ public:
     // Index 0: positive - green, 1: negative - red, 2: zero - black
     for(int i = 0; i<3; i++){
       graph->addSeries(new QScatter3DSeries);
-      graph->seriesList().at(i)->setMesh(QAbstract3DSeries::MeshSphere);
+      graph->seriesList().at(i)->setMesh(QAbstract3DSeries::MeshPoint);
+      //graph->seriesList().at(i)->userDefinedMesh(QString("myMesh"));
       graph->seriesList().at(i)->setMeshSmooth(false);
       graph->seriesList().at(i)->setItemLabelFormat(QStringLiteral("@zTitle: @zLabel @xTitle: @xLabel @yTitle: @yLabel"));
       //graph->seriesList().at(i)->setItemLabelVisible(false);
@@ -100,40 +101,16 @@ public:
     graph->seriesList().at(0)->setBaseColor(Qt::green);
     graph->seriesList().at(1)->setBaseColor(Qt::red);
     graph->seriesList().at(2)->setBaseColor(Qt::black);
-/*
-    QScatterDataProxy *proxy = new QScatterDataProxy;
-    QScatter3DSeries *seriesPos = new QScatter3DSeries(proxy);
-    seriesPos->setItemLabelFormat(QStringLiteral("@xTitle: @xLabel @yTitle: @yLabel @zTitle: @zLabel"));
-    seriesPos->setBaseColor(Qt::green);
-    seriesPos->setMesh(QAbstract3DSeries::MeshSphere);
-    seriesPos->setMeshSmooth(false);
 
-    QScatter3DSeries *seriesNeg = new QScatter3DSeries(proxy);
-    seriesNeg->setItemLabelFormat(QStringLiteral("@xTitle: @xLabel @yTitle: @yLabel @zTitle: @zLabel"));
-    seriesNeg->setBaseColor(Qt::red);
-    seriesNeg->setMesh(QAbstract3DSeries::MeshSphere);
-    seriesNeg->setMeshSmooth(false);
-
-    QScatter3DSeries *seriesZero = new QScatter3DSeries(proxy);
-    seriesZero->setItemLabelFormat(QStringLiteral("@xTitle: @xLabel @yTitle: @yLabel @zTitle: @zLabel"));
-    seriesZero->setBaseColor(Qt::black);
-    seriesZero->setMesh(QAbstract3DSeries::MeshSphere);
-    seriesZero->setMeshSmooth(false);
-
-    graph->addSeries(seriesPos);
-    graph->addSeries(seriesNeg);
-    graph->addSeries(seriesZero);
-*/
-    //addData();
+    //z now showing up, x towards eys
+    graph->axisX()->setTitle("Y");
+    graph->axisY()->setTitle("Z");
+    graph->axisZ()->setTitle("X");
 
     container->show();
   }
 
   void addData(){
-    //z now showing up, x towards eys
-    graph->axisX()->setTitle("Y");
-    graph->axisY()->setTitle("Z");
-    graph->axisZ()->setTitle("X");
 
     if(pCount > 0){
       pDat->resize(pCount);
@@ -240,6 +217,7 @@ namespace lvlset{
             }
         }
         window.addData();
+        std::cout << "Graph updated" << std::endl;
     }
 
 }
