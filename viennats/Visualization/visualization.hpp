@@ -54,7 +54,7 @@ public:
     }
 
     ~Visualization(){
-      delete graph;
+        delete graph;
         worker->abort();
         thread->wait();
         qDebug()<<"Deleting thread and worker in Thread "<<this->QObject::thread()->currentThreadId();
