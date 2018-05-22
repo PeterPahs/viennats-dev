@@ -219,9 +219,32 @@ private:
 
 namespace lvlset{
     //Pass points to Qt in visualization.hpp
+
+    template <class LevelSetsType>
+    void create_visual(const LevelSetsType& LevelSets, Visualization& window){
+      const int D=LevelSetsType::value_type::dimensions;
+      window.resetData();
+      //Iterate over all LevelSets
+      typename LevelSetsType::const_iterator it=LevelSets.begin();
+      for (unsigned int i=0;i<LevelSets.size();i++) {
+        //If last LevelSet is added, draw the graph
+        if (i!=LevelSets.size()-1){
+          add_to_visual(*it, D, window);
+        }
+        else {
+          add_to_visual(*it, D, window);
+          window.addData();
+        }
+        it++;
+      }
+    }
+
+
+
+
     template <class LevelSetType>
-    void create_visual(const LevelSetType& ls, const int D, Visualization& window){
-        window.resetData();
+    void add_to_visual(const LevelSetType& ls, const int D, Visualization& window){
+
         for(typename LevelSetType::const_iterator_runs it(ls); !it.is_finished(); it.next()){
             if(it.is_active()){
               if(D>2){
@@ -232,7 +255,6 @@ namespace lvlset{
               }
             }
         }
-        window.addData();
     }
 
 }

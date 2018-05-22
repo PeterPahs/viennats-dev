@@ -1075,7 +1075,7 @@ namespace proc {
 
 						#ifdef GUI_ENABLED
 						//call the visualization method for all level sets
-						lvlset::create_visual(LevelSets.back(), D, *Qwindow);
+						lvlset::create_visual(LevelSets, *Qwindow);
 						Qwindow->update();
 						#endif
 
@@ -1625,7 +1625,7 @@ namespace proc {
 
 						#ifdef GUI_ENABLED
 						//call the visualization method for all level sets
-						lvlset::create_visual(LevelSets.back(), D, *Qwindow);
+						lvlset::create_visual(LevelSets, *Qwindow);
 						Qwindow->update();
 						#endif
 
