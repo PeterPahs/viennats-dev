@@ -396,13 +396,13 @@ void main_(ParameterType2& p2) {					//TODO changed from const to not const
 	}
 
 	msg::print_done();
-
+/*
 	#ifdef GUI_ENABLED
 	//call the visualization method for all level sets
 	lvlset::create_visual(LevelSets.back(), D, *Qwindow);
 	Qwindow->update();
 	#endif
-
+*/
 
 
 	msg::print_start("Add Initial Layers...");

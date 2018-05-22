@@ -1073,6 +1073,12 @@ namespace proc {
             TimeTotalExclOutput+=my::time::GetTime();
             TimeOutput-=my::time::GetTime();
 
+						#ifdef GUI_ENABLED
+						//call the visualization method for all level sets
+						lvlset::create_visual(LevelSets.back(), D, *Qwindow);
+						Qwindow->update();
+						#endif
+
             if (MakeOutput) {
 
 #ifdef VERBOSE
@@ -1099,15 +1105,12 @@ namespace proc {
 									oss << " (time = " << RelativeTime << ")...";
 									msg::print_start(oss.str());
 
-									#ifdef GUI_ENABLED
-									//call the visualization method for all level sets
-									lvlset::create_visual(LevelSets.back(), D, *Qwindow);
-									Qwindow->update();
-									#endif
                 }
 
                 typename LevelSetsType::iterator it=LevelSets.begin();
                 for (unsigned int i=0;i<LevelSets.size();i++) {
+
+
 
                     if (Parameter.print_dx) {
                         std::ostringstream oss;
@@ -1139,12 +1142,6 @@ namespace proc {
                 }
 
                 output_info.output_counter++;
-
-								#ifdef GUI_ENABLED
-								//call the visualization method for all level sets
-								lvlset::create_visual(LevelSets.back(), D, *Qwindow);
-								//Qwindow->update();
-								#endif
 
                 msg::print_done();
             }
@@ -1626,6 +1623,12 @@ namespace proc {
             TimeTotalExclOutput+=my::time::GetTime();
             TimeOutput-=my::time::GetTime();
 
+						#ifdef GUI_ENABLED
+						//call the visualization method for all level sets
+						lvlset::create_visual(LevelSets.back(), D, *Qwindow);
+						Qwindow->update();
+						#endif
+
             if (MakeOutput) {
 
 #ifdef VERBOSE
@@ -1652,15 +1655,13 @@ namespace proc {
 					oss << " (time = " << RelativeTime << ")...";
 					msg::print_start(oss.str());
 
-					#ifdef GUI_ENABLED
-					//call the visualization method for all level sets
-					lvlset::create_visual(LevelSets.back(), D, *Qwindow);
-					Qwindow->update();
-					#endif
+
                 }
 
                 typename LevelSetsType::iterator it=LevelSets.begin();
                 for (unsigned int i=0;i<LevelSets.size();i++) {
+
+
 
                     if (Parameter.print_dx) {
                         std::ostringstream oss;
@@ -1690,6 +1691,7 @@ namespace proc {
                     }
                     it++;
                 }
+
 
                 if(!VolumeOutput) output_info.output_counter++;
 

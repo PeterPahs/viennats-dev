@@ -107,6 +107,12 @@ public:
     graph->axisY()->setTitle("Z");
     graph->axisZ()->setTitle("X");
 
+    //graph->axisX()->setMax(50.0f);
+    //graph->axisY()->setMax(50.0f);
+    //graph->axisZ()->setMax(50.0f);
+
+
+
     container->show();
   }
 
@@ -195,6 +201,7 @@ public:
   }
 
 
+
 private:
   QVector<QVector4D> PointVector;
   Q3DScatter *graph;
@@ -226,7 +233,6 @@ namespace lvlset{
             }
         }
         window.addData();
-        std::cout << "Graph updated" << std::endl;
     }
 
 }
