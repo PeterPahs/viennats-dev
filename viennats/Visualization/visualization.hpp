@@ -68,7 +68,7 @@ public:
     QWidget *container = QWidget::createWindowContainer(graph);
 
     QSize screenSize = graph->screen()->size();
-    container->setMinimumSize(QSize(screenSize.width()/2, screenSize.height()/2));
+    container->setMinimumSize(QSize(screenSize.width()/4, screenSize.height()/4));
     container->setMaximumSize(screenSize);
     container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     container->setFocusPolicy(Qt::StrongFocus);
@@ -176,9 +176,37 @@ public:
 */
   }
 
-	void addPoint(float x, float y, float z, float dist){
+	void addPoint(float x, float y, float z, float dist, int open_boundary_direction, bool is_open_boundary_negative){
 		if(fabsf(dist) <= 1){
-      PointVector.append(QVector4D(y,z,x, dist)); //x pointing towards eye, z up
+      //set Orientation
+      if(open_boundary_direction == 0){
+        if(!is_open_boundary_negative){
+          PointVector.append(QVector4D(z,x,y, dist)); // x up
+        }
+        else{
+          PointVector.append(QVector4D(z, -x, -y, dist)); // x down
+        }
+      }
+
+      if(open_boundary_direction == 1){
+        if(!is_open_boundary_negative){
+          PointVector.append(QVector4D(x,y,z, dist)); // y up,
+        }
+        else{
+          PointVector.append(QVector4D(x, -y, -z, dist)); // y down
+        }
+      }
+
+      else{
+        if(!is_open_boundary_negative){
+          PointVector.append(QVector4D(y,z,x, dist)); // z up
+        }
+        else{
+          PointVector.append(QVector4D(y, -z, -x, dist)); // z down
+        }
+      }
+
+
       if(dist < 0){
         nCount++;
       }
@@ -221,7 +249,7 @@ namespace lvlset{
     //Pass points to Qt in visualization.hpp
 
     template <class LevelSetsType>
-    void create_visual(const LevelSetsType& LevelSets, Visualization& window){
+    void create_visual(const LevelSetsType& LevelSets, Visualization& window, int open_boundary_direction, bool is_open_boundary_negative){
       const int D=LevelSetsType::value_type::dimensions;
       window.resetData();
       //Iterate over all LevelSets
@@ -229,10 +257,10 @@ namespace lvlset{
       for (unsigned int i=0;i<LevelSets.size();i++) {
         //If last LevelSet is added, draw the graph
         if (i!=LevelSets.size()-1){
-          add_to_visual(*it, D, window);
+          add_to_visual(*it, open_boundary_direction, is_open_boundary_negative, D, window);
         }
         else {
-          add_to_visual(*it, D, window);
+          add_to_visual(*it, open_boundary_direction, is_open_boundary_negative, D, window);
           window.addData();
         }
         it++;
@@ -243,15 +271,15 @@ namespace lvlset{
 
 
     template <class LevelSetType>
-    void add_to_visual(const LevelSetType& ls, const int D, Visualization& window){
+    void add_to_visual(const LevelSetType& ls, int open_boundary_direction, bool is_open_boundary_negative, const int D, Visualization& window){
 
         for(typename LevelSetType::const_iterator_runs it(ls); !it.is_finished(); it.next()){
             if(it.is_active()){
               if(D>2){
-                window.addPoint((float)it.start_indices(0), (float)it.start_indices(1), (float)it.start_indices(2), (float)it.value2());
+                window.addPoint((float)it.start_indices(0), (float)it.start_indices(1), (float)it.start_indices(2), (float)it.value2(), open_boundary_direction, is_open_boundary_negative);
               }
               else {
-                window.addPoint((float)it.start_indices(0), (float)it.start_indices(1), 0.f, (float)it.value2());
+                window.addPoint((float)it.start_indices(0), (float)it.start_indices(1), 0.f, (float)it.value2(), open_boundary_direction, is_open_boundary_negative);
               }
             }
         }
