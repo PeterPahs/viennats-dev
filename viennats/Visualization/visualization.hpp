@@ -54,16 +54,25 @@ public:
     }
 
     ~Visualization(){
-        delete graph;
+      /**
+      * The program is stuck at "thread->wait()" since "_abort" in Worker is never used.
+      * To solve this we need shared memory, etc.
+      * The window is closed, but ViennaTS still runs and sends data to visualization as deconstructor
+      * is done only after ViennaTS is done.
+      */
         worker->abort();
+        std::cout << std::endl << "Visualzation closed, simulation continues." << std::endl;
+        thread->quit();
         thread->wait();
         qDebug()<<"Deleting thread and worker in Thread "<<this->QObject::thread()->currentThreadId();
         delete thread;
         delete worker;
+        delete graph;
 
     }
 
   void initGraph(){
+
     graph = new Q3DScatter();
     QWidget *container = QWidget::createWindowContainer(graph);
 

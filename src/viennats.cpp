@@ -147,9 +147,9 @@
 #include "boundaries.h"
 #include "Visualization/visualization.hpp"
 
-
+#ifdef GUI_ENABLED
 Visualization* Qwindow;
-
+#endif
 
 ///GridTraitsType Contains minimum and maximum indexes in each dimensional direction, boundary conditions, and the grid spacing
 template<int D>

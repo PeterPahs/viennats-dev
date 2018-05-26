@@ -46,6 +46,7 @@ public:
      */
     void abort();
 
+
 private:
     char* inputFile;
     /**

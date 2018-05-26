@@ -46,7 +46,9 @@ void Worker::requestWork()
 
     emit workRequested();
 }
-
+/**
+* Sets _abort=true, but never used since no loop in doWork
+*/
 void Worker::abort()
 {
     mutex.lock();
@@ -57,11 +59,16 @@ void Worker::abort()
     mutex.unlock();
 }
 
+
 void Worker::doWork()
 {
     std::cout <<"Starting worker process in Thread "<<thread()->currentThreadId();
 
     start_vts(inputFile);
+    /**
+    * Program executes even if _abort=true.
+    * See Visualzation.hpp for more details
+    */
 
     // Set _working to false, meaning the process can't be aborted anymore.
     mutex.lock();
