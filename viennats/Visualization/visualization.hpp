@@ -285,19 +285,19 @@ namespace lvlset{
         for(typename LevelSetType::const_iterator_runs it(ls); !it.is_finished(); it.next()){
             if(it.is_active()){
               if(D>2){
-                if(fabs(it.start_indices(0)) < std::numeric_limits<float>::epsilon()){
+                if(fabs(it.start_indices(0)) < std::numeric_limits<float>::min()){
                   std::cout << "Catch " << counter << std::endl;
                   counter++;
                 }
-                if(fabs(it.start_indices(1)) < std::numeric_limits<float>::epsilon()){
+                if(fabs(it.start_indices(1)) < std::numeric_limits<float>::min()){
                   std::cout << "Catch " << counter << std::endl;
                   counter++;
                 }
-                if(fabs(it.start_indices(2)) < std::numeric_limits<float>::epsilon()){
+                if(fabs(it.start_indices(2)) < std::numeric_limits<float>::min()){
                   std::cout << "Catch " << counter << std::endl;
                   counter ++;
                 }
-                if(fabs(it.value2()) < std::numeric_limits<float>::epsilon()){
+                if(fabs(it.value2()) < std::numeric_limits<float>::min()){
                   std::cout << "Catch " << counter << std::endl;
                   counter ++;
                 }
