@@ -281,21 +281,25 @@ namespace lvlset{
 
     template <class LevelSetType>
     void add_to_visual(const LevelSetType& ls, int open_boundary_direction, bool is_open_boundary_negative, const int D, Visualization& window){
-
+      int counter = 0;
         for(typename LevelSetType::const_iterator_runs it(ls); !it.is_finished(); it.next()){
             if(it.is_active()){
               if(D>2){
                 if(fabs(it.start_indices(0)) < std::numeric_limits<float>::epsilon()){
-                  std::cout << "Catch" << std::endl;
+                  std::cout << "Catch " << counter << std::endl;
+                  counter++;
                 }
                 if(fabs(it.start_indices(1)) < std::numeric_limits<float>::epsilon()){
-                  std::cout << "Catch" << std::endl;
+                  std::cout << "Catch " << counter << std::endl;
+                  counter++;
                 }
                 if(fabs(it.start_indices(2)) < std::numeric_limits<float>::epsilon()){
-                  std::cout << "Catch" << std::endl;
+                  std::cout << "Catch " << counter << std::endl;
+                  counter ++;
                 }
                 if(fabs(it.value2()) < std::numeric_limits<float>::epsilon()){
-                  std::cout << "Catch" << std::endl;
+                  std::cout << "Catch " << counter << std::endl;
+                  counter ++;
                 }
                 window.addPoint(it.start_indices(0), it.start_indices(1), it.start_indices(2), it.value2(), open_boundary_direction, is_open_boundary_negative);
               }
