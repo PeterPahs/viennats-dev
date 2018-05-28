@@ -77,7 +77,7 @@ public:
     QWidget *container = QWidget::createWindowContainer(graph);
 
     QSize screenSize = graph->screen()->size();
-    container->setMinimumSize(QSize(screenSize.width()/4, screenSize.height()/4));
+    container->setMinimumSize(QSize(screenSize.width()/2, screenSize.height()/2));
     container->setMaximumSize(screenSize);
     container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     container->setFocusPolicy(Qt::StrongFocus);
@@ -185,8 +185,8 @@ public:
 */
   }
 
-	void addPoint(float x, float y, float z, float dist, int open_boundary_direction, bool is_open_boundary_negative){
-		if(fabsf(dist) <= 1){
+	void addPoint(qreal x, qreal y, qreal z, qreal dist, int open_boundary_direction, bool is_open_boundary_negative){
+		if(fabs(dist) <= 1){
       //set Orientation
       if(open_boundary_direction == 0){
         if(!is_open_boundary_negative){
@@ -216,10 +216,10 @@ public:
       }
 
 
-      if(dist < 0){
+      if(dist < 0.0){
         nCount++;
       }
-      else if(dist > 0){
+      else if(dist > 0.0){
         pCount++;
       }
       else {
@@ -285,10 +285,10 @@ namespace lvlset{
         for(typename LevelSetType::const_iterator_runs it(ls); !it.is_finished(); it.next()){
             if(it.is_active()){
               if(D>2){
-                window.addPoint((float)it.start_indices(0), (float)it.start_indices(1), (float)it.start_indices(2), (float)it.value2(), open_boundary_direction, is_open_boundary_negative);
+                window.addPoint(it.start_indices(0), it.start_indices(1), it.start_indices(2), it.value2(), open_boundary_direction, is_open_boundary_negative);
               }
               else {
-                window.addPoint((float)it.start_indices(0), (float)it.start_indices(1), 0.f, (float)it.value2(), open_boundary_direction, is_open_boundary_negative);
+                window.addPoint(it.start_indices(0), it.start_indices(1), 0.0, it.value2(), open_boundary_direction, is_open_boundary_negative);
               }
             }
         }
