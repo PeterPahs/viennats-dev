@@ -50,7 +50,14 @@ public:
         connect(worker, SIGNAL(finished()), thread, SLOT(quit()), Qt::DirectConnection);
         worker->requestWork();
 
+        std::cout << std::endl << "visualization created, starting graph" << std::endl;
+
         initGraph();
+        std::cout << "graph created" << std::endl;
+        first_call = true;
+        pDat = 0;
+        nDat = 0;
+        zDat = 0;
     }
 
     ~Visualization(){
@@ -229,12 +236,21 @@ public:
 	}
 
   void resetData(){
+    std::cout << std::endl << "reset Data of PointVector " << std::endl;
     if(!PointVector.isEmpty()){
       PointVector.clear();
     }
     pCount = 0;
     zCount = 0;
     nCount = 0;
+  }
+
+  bool is_first_call(){
+    return first_call;
+  }
+
+  void set_first_call(){
+    first_call = false;
   }
 
 
@@ -251,6 +267,7 @@ private:
   QScatterDataItem *pPtr;
   QScatterDataItem *nPtr;
   QScatterDataItem *zPtr;
+  bool first_call;
 
 };
 
@@ -259,21 +276,35 @@ namespace lvlset{
 
     template <class LevelSetsType>
     void create_visual(const LevelSetsType& LevelSets, Visualization& window, int open_boundary_direction, bool is_open_boundary_negative){
+      std::cout << std::endl << "create visual called" << std::endl;
       const int D=LevelSetsType::value_type::dimensions;
-      window.resetData();
+      std::cout << std::endl << "QWindow Addr in create_visual: " << &window << std::endl;
+      if(window.is_first_call()){
+        std::cout << std::endl << "first call "  << std::endl;
+        window.set_first_call();
+      }
+      else{
+        window.resetData();
+      }
+
       //Iterate over all LevelSets
       typename LevelSetsType::const_iterator it=LevelSets.begin();
       for (unsigned int i=0;i<LevelSets.size();i++) {
         //If last LevelSet is added, draw the graph
         if (i!=LevelSets.size()-1){
+          std::cout << std::endl << "calling add_to_visual number " << i << std::endl;
           add_to_visual(*it, open_boundary_direction, is_open_boundary_negative, D, window);
         }
         else {
+          std::cout << std::endl << "calling add_to_visual final " << i << std::endl;
           add_to_visual(*it, open_boundary_direction, is_open_boundary_negative, D, window);
+          std::cout << std::endl << "adding window data "<< std::endl;
           window.addData();
+          std::cout << std::endl << "window data added " << std::endl;
         }
         it++;
       }
+      //window.addData();
     }
 
 
@@ -281,26 +312,11 @@ namespace lvlset{
 
     template <class LevelSetType>
     void add_to_visual(const LevelSetType& ls, int open_boundary_direction, bool is_open_boundary_negative, const int D, Visualization& window){
-      int counter = 0;
+      std::cout << std::endl << "add_to_visual is called " << std::endl;
         for(typename LevelSetType::const_iterator_runs it(ls); !it.is_finished(); it.next()){
             if(it.is_active()){
               if(D>2){
-                if(fabs(it.start_indices(0)) < std::numeric_limits<float>::min()){
-                  std::cout << "Catch " << counter << std::endl;
-                  counter++;
-                }
-                if(fabs(it.start_indices(1)) < std::numeric_limits<float>::min()){
-                  std::cout << "Catch " << counter << std::endl;
-                  counter++;
-                }
-                if(fabs(it.start_indices(2)) < std::numeric_limits<float>::min()){
-                  std::cout << "Catch " << counter << std::endl;
-                  counter ++;
-                }
-                if(fabs(it.value2()) < std::numeric_limits<float>::min()){
-                  std::cout << "Catch " << counter << std::endl;
-                  counter ++;
-                }
+                std::cout << std::endl << "start adding point " << std::endl;
                 window.addPoint(it.start_indices(0), it.start_indices(1), it.start_indices(2), it.value2(), open_boundary_direction, is_open_boundary_negative);
               }
               else {
@@ -308,6 +324,7 @@ namespace lvlset{
               }
             }
         }
+        std::cout << std::endl << "add_to_visual done " << std::endl;
     }
 
 }

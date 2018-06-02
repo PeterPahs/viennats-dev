@@ -1074,6 +1074,7 @@ namespace proc {
             TimeOutput-=my::time::GetTime();
 
 						#ifdef GUI_ENABLED
+						std::cout << std::endl << "Qwindow addr: " << &Qwindow << std::endl;
 						//call the visualization method for all level sets
 						lvlset::create_visual(LevelSets, *Qwindow, Parameter.open_boundary_direction, Parameter.is_open_boundary_negative);
 						Qwindow->update();
@@ -1624,6 +1625,7 @@ namespace proc {
             TimeOutput-=my::time::GetTime();
 
 						#ifdef GUI_ENABLED
+						std::cout << std::endl << "Qwindow addr: " << &Qwindow << std::endl;
 						//call the visualization method for all level sets
 						lvlset::create_visual(LevelSets, *Qwindow, Parameter.open_boundary_direction, Parameter.is_open_boundary_negative);
 						Qwindow->update();
