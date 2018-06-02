@@ -54,7 +54,8 @@ void Worker::abort()
     mutex.lock();
     if (_working) {
         _abort = true;
-        std::cout <<"Request worker aborting in Thread "<<thread()->currentThreadId();
+        std::cout <<"Request worker aborting in Thread "<<thread()->currentThreadId() << std::endl;
+        std::cout <<"Quit ViennaTS after process execution is finished" << std::endl;
     }
     mutex.unlock();
 }

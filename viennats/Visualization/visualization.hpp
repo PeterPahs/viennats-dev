@@ -39,10 +39,10 @@ public:
 
     Visualization(char* inputFile)
     {
-        std::cout << "Constructing Visualization" << std::endl;
-        // The thread and the worker are created in the constructor so it is always safe to delete them.
         thread = new QThread();
         worker = new Worker(inputFile);
+
+        initGraph();
 
         worker->moveToThread(thread);
         connect(worker, SIGNAL(workRequested()), thread, SLOT(start()));
@@ -50,14 +50,8 @@ public:
         connect(worker, SIGNAL(finished()), thread, SLOT(quit()), Qt::DirectConnection);
         worker->requestWork();
 
-        std::cout << std::endl << "visualization created, starting graph" << std::endl;
 
-        initGraph();
-        std::cout << "graph created" << std::endl;
-        first_call = true;
-        pDat = 0;
-        nDat = 0;
-        zDat = 0;
+
     }
 
     ~Visualization(){
@@ -68,7 +62,6 @@ public:
       * is done only after ViennaTS is done.
       */
         worker->abort();
-        std::cout << std::endl << "Visualzation closed, simulation continues." << std::endl;
         thread->quit();
         thread->wait();
         qDebug()<<"Deleting thread and worker in Thread "<<this->QObject::thread()->currentThreadId();
@@ -111,21 +104,18 @@ public:
       graph->seriesList().at(i)->setMesh(QAbstract3DSeries::MeshPoint);
       //graph->seriesList().at(i)->userDefinedMesh(QString("myMesh"));
       graph->seriesList().at(i)->setMeshSmooth(false);
-      graph->seriesList().at(i)->setItemLabelFormat(QStringLiteral("@zTitle: @zLabel @xTitle: @xLabel @yTitle: @yLabel"));
+      graph->seriesList().at(i)->setItemLabelFormat(QStringLiteral("@xTitle: @xLabel @yTitle: @yLabel @zTitle: @zLabel"));
       //graph->seriesList().at(i)->setItemLabelVisible(false);
     }
     graph->seriesList().at(0)->setBaseColor(Qt::green);
     graph->seriesList().at(1)->setBaseColor(Qt::red);
     graph->seriesList().at(2)->setBaseColor(Qt::black);
 
-    //z now showing up, x towards eys
-    graph->axisX()->setTitle("Y");
-    graph->axisY()->setTitle("Z");
-    graph->axisZ()->setTitle("X");
 
-    //graph->axisX()->setMax(50.0f);
-    //graph->axisY()->setMax(50.0f);
-    //graph->axisZ()->setMax(50.0f);
+    graph->axisX()->setTitle("X");
+    graph->axisY()->setTitle("Y");
+    graph->axisZ()->setTitle("Z");
+
 
 
 
@@ -177,19 +167,6 @@ public:
 #endif
 
     }
-  /*
-    //Add the points to graph
-    if(!PointVector.isEmpty()){
-      QScatterDataArray *dat = new QScatterDataArray;
-      dat->resize(PointVector.size());
-      QScatterDataItem *ptr = &dat->first();
-      for(int i=0; i<PointVector.size(); i++){
-        ptr->setPosition(PointVector.at(i));
-        ptr++;
-      }
-      graph->seriesList().at(0)->dataProxy()->resetArray(dat);
-    }
-*/
   }
 
 	void addPoint(qreal x, qreal y, qreal z, qreal dist, int open_boundary_direction, bool is_open_boundary_negative){
@@ -236,7 +213,6 @@ public:
 	}
 
   void resetData(){
-    std::cout << std::endl << "reset Data of PointVector " << std::endl;
     if(!PointVector.isEmpty()){
       PointVector.clear();
     }
@@ -244,15 +220,6 @@ public:
     zCount = 0;
     nCount = 0;
   }
-
-  bool is_first_call(){
-    return first_call;
-  }
-
-  void set_first_call(){
-    first_call = false;
-  }
-
 
 
 private:
@@ -267,7 +234,6 @@ private:
   QScatterDataItem *pPtr;
   QScatterDataItem *nPtr;
   QScatterDataItem *zPtr;
-  bool first_call;
 
 };
 
@@ -276,35 +242,23 @@ namespace lvlset{
 
     template <class LevelSetsType>
     void create_visual(const LevelSetsType& LevelSets, Visualization& window, int open_boundary_direction, bool is_open_boundary_negative){
-      std::cout << std::endl << "create visual called" << std::endl;
       const int D=LevelSetsType::value_type::dimensions;
-      std::cout << std::endl << "QWindow Addr in create_visual: " << &window << std::endl;
-      if(window.is_first_call()){
-        std::cout << std::endl << "first call "  << std::endl;
-        window.set_first_call();
-      }
-      else{
-        window.resetData();
-      }
+
+      window.resetData();
 
       //Iterate over all LevelSets
       typename LevelSetsType::const_iterator it=LevelSets.begin();
       for (unsigned int i=0;i<LevelSets.size();i++) {
         //If last LevelSet is added, draw the graph
         if (i!=LevelSets.size()-1){
-          std::cout << std::endl << "calling add_to_visual number " << i << std::endl;
           add_to_visual(*it, open_boundary_direction, is_open_boundary_negative, D, window);
         }
         else {
-          std::cout << std::endl << "calling add_to_visual final " << i << std::endl;
           add_to_visual(*it, open_boundary_direction, is_open_boundary_negative, D, window);
-          std::cout << std::endl << "adding window data "<< std::endl;
           window.addData();
-          std::cout << std::endl << "window data added " << std::endl;
         }
         it++;
       }
-      //window.addData();
     }
 
 
@@ -312,11 +266,9 @@ namespace lvlset{
 
     template <class LevelSetType>
     void add_to_visual(const LevelSetType& ls, int open_boundary_direction, bool is_open_boundary_negative, const int D, Visualization& window){
-      std::cout << std::endl << "add_to_visual is called " << std::endl;
         for(typename LevelSetType::const_iterator_runs it(ls); !it.is_finished(); it.next()){
             if(it.is_active()){
               if(D>2){
-                std::cout << std::endl << "start adding point " << std::endl;
                 window.addPoint(it.start_indices(0), it.start_indices(1), it.start_indices(2), it.value2(), open_boundary_direction, is_open_boundary_negative);
               }
               else {
@@ -324,7 +276,6 @@ namespace lvlset{
               }
             }
         }
-        std::cout << std::endl << "add_to_visual done " << std::endl;
     }
 
 }
