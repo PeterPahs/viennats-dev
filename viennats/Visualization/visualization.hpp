@@ -10,6 +10,8 @@
 #include <QtGui>
 #include <QMainWindow>
 #include <QScreen>
+#include <QCloseEvent>
+#include <QMessageBox>
 #include <QtDataVisualization/q3dscatter.h>
 #include <QtDataVisualization/qabstract3dseries.h>
 #include <QtDataVisualization/qscatterdataproxy.h>
@@ -48,6 +50,8 @@ public:
         connect(worker, SIGNAL(workRequested()), thread, SLOT(start()));
         connect(thread, SIGNAL(started()), worker, SLOT(doWork()));
         connect(worker, SIGNAL(finished()), thread, SLOT(quit()), Qt::DirectConnection);
+        connect(worker, SIGNAL(finished()), this, SLOT(close()), Qt::DirectConnection); // <- closes the window after simulation has finished.
+
         worker->requestWork();
 
 
@@ -283,8 +287,19 @@ private:
       zMax = z;
     }
   }
+/*
+  void closeEvent(QCloseEvent *event){
+    qDebug() << "close event triggerd";
 
-
+    QMessageBox::StandardButton qBtn = QMessageBox::question( this, "ViennaTS", tr("Do you want to quit?\n"), QMessageBox::No | QMessageBox::Yes, QMessageBox::Yes);
+    if(qBtn == QMessageBox::Yes){
+      event->accept();
+    }
+    else{
+      event->ignore();
+    }
+  }
+*/
 
 private:
   QVector<QVector4D> PointVector;
