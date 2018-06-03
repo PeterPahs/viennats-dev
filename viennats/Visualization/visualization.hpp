@@ -68,20 +68,21 @@ public:
         delete thread;
         delete worker;
         delete graph;
+        delete container;
 
     }
 
   void initGraph(){
 
     graph = new Q3DScatter();
-    QWidget *container = QWidget::createWindowContainer(graph);
+    container = QWidget::createWindowContainer(graph);
 
     QSize screenSize = graph->screen()->size();
     container->setMinimumSize(QSize(screenSize.width()/2, screenSize.height()/2));
     container->setMaximumSize(screenSize);
     container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     container->setFocusPolicy(Qt::StrongFocus);
-    container->setWindowTitle(QStringLiteral("ViennaTS"));
+    //container->setWindowTitle(QStringLiteral("ViennaTS"));
 
 
     graph->activeTheme()->setType(Q3DTheme::ThemePrimaryColors);
@@ -116,10 +117,16 @@ public:
     graph->axisY()->setTitle("Y");
     graph->axisZ()->setTitle("Z");
 
+    //isAxisSet = false;
+    xMin = 0;
+    xMax = 0;
+    yMin = 0;
+    yMax = 0;
+    zMin = 0;
+    zMax = 0;
 
-
-
-    container->show();
+    setCentralWidget(container);
+    //container->show();
   }
 
   void addData(){
@@ -175,27 +182,45 @@ public:
       if(open_boundary_direction == 0){
         if(!is_open_boundary_negative){
           PointVector.append(QVector4D(z,x,y, dist)); // x up
+          if(!isAxisSet){
+            getMinMax(z,x,y);
+          }
         }
         else{
           PointVector.append(QVector4D(z, -x, -y, dist)); // x down
+          if(!isAxisSet){
+            getMinMax(z,-x,-y);
+          }
         }
       }
 
       if(open_boundary_direction == 1){
         if(!is_open_boundary_negative){
           PointVector.append(QVector4D(x,y,z, dist)); // y up,
+          if(!isAxisSet){
+            getMinMax(x,y,z);
+          }
         }
         else{
           PointVector.append(QVector4D(x, -y, -z, dist)); // y down
+          if(!isAxisSet){
+            getMinMax(x,-y,-z);
+          }
         }
       }
 
       else{
         if(!is_open_boundary_negative){
           PointVector.append(QVector4D(y,z,x, dist)); // z up
+          if(!isAxisSet){
+            getMinMax(y,z,x);
+          }
         }
         else{
           PointVector.append(QVector4D(y, -z, -x, dist)); // z down
+          if(!isAxisSet){
+            getMinMax(y,-z,-x);
+          }
         }
       }
 
@@ -221,10 +246,50 @@ public:
     nCount = 0;
   }
 
+  void setAxisFixed(){
+    if(!isAxisSet){
+      isAxisSet = true;
+      //set fixed range for graph
+      graph->axisX()->setAutoAdjustRange(false);
+      graph->axisX()->setRange(xMin-3, xMax+3);
+      graph->axisY()->setAutoAdjustRange(false);
+      graph->axisY()->setRange(yMin-3, yMax+3);
+      graph->axisZ()->setAutoAdjustRange(false);
+      graph->axisZ()->setRange(zMin-3, zMax+3);
+    }
+  }
+
+
+private:
+  void getMinMax(qreal x, qreal y, qreal z){
+    if(x < xMin){
+      xMin = x;
+    }
+    else if(x > xMax){
+      xMax = x;
+    }
+
+    if(y < yMin){
+      yMin = y;
+    }
+    else if(y > yMax){
+      yMax = y;
+    }
+
+    if(z < zMin){
+      zMin = z;
+    }
+    else if(z > zMax){
+      zMax = z;
+    }
+  }
+
+
 
 private:
   QVector<QVector4D> PointVector;
   Q3DScatter *graph;
+  QWidget *container;
   int pCount;
   int nCount;
   int zCount;
@@ -234,6 +299,8 @@ private:
   QScatterDataItem *pPtr;
   QScatterDataItem *nPtr;
   QScatterDataItem *zPtr;
+  bool isAxisSet;
+  qreal xMin, xMax, yMin, yMax, zMin, zMax;
 
 };
 
@@ -259,6 +326,7 @@ namespace lvlset{
         }
         it++;
       }
+      window.setAxisFixed();
     }
 
 

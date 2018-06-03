@@ -55,7 +55,6 @@ void Worker::abort()
     if (_working) {
         _abort = true;
         std::cout <<"Request worker aborting in Thread "<<thread()->currentThreadId() << std::endl;
-        std::cout <<"Quit ViennaTS after process execution is finished" << std::endl;
     }
     mutex.unlock();
 }
@@ -77,6 +76,7 @@ void Worker::doWork()
     mutex.unlock();
 
     qDebug()<<"Worker process finished in Thread "<<thread()->currentThreadId();
+    //std::cout << std::endl << "Close Graph Window to continue." << std::endl;
 
     //Once 60 sec passed, the finished signal is sent
     emit finished();

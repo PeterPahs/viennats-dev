@@ -740,11 +740,10 @@ int main(int argc, char *argv[]) {
 	std::cout << "Started GUI." << std::endl;
 	QApplication visualTS(argc, argv);
 	Qwindow = new Visualization(argv[1]);
-	//Qwindow->setWindowTitle("ViennaTS");
-	//Qwindow->resize(800, 600);
-	//Qwindow->show();
+	Qwindow->setWindowTitle("ViennaTS");
+	Qwindow->resize(800, 600);
+	Qwindow->show();
 	ret_val = visualTS.exec();
-
 	delete Qwindow;
 	#endif
 
