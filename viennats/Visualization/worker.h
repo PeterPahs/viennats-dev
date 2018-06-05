@@ -81,6 +81,7 @@ public slots:
      * Counting is interrupted if #_aborted is set to true.
      */
     void doWork();
+
 };
 
 #endif // WORKER_H

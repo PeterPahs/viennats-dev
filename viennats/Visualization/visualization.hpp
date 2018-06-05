@@ -1,3 +1,12 @@
+/*
+  Qt class for the visualization of LevelSets in ViennaTS.
+
+  Usage of QtDataVisualization module under GNU General Public License v3 and
+  Qt under LGPL v3 License.
+  The Qt Company - www.qt.io
+  License - www.gnu.org/licenses/
+*/
+
 #ifndef VISUALIZATION_H
 #define VISUALIZATION_H
 
@@ -38,33 +47,27 @@ class Visualization : public QMainWindow
 
 
 public:
-
+    //Constructor
     Visualization(char* inputFile)
     {
+      //Spawn GUI thread and worker thread
         thread = new QThread();
         worker = new Worker(inputFile);
-
+        //initialize the graph
         initGraph();
-
+        //connect the signals and slots
         worker->moveToThread(thread);
         connect(worker, SIGNAL(workRequested()), thread, SLOT(start()));
         connect(thread, SIGNAL(started()), worker, SLOT(doWork()));
         connect(worker, SIGNAL(finished()), thread, SLOT(quit()), Qt::DirectConnection);
-        connect(worker, SIGNAL(finished()), this, SLOT(close()), Qt::DirectConnection); // <- closes the window after simulation has finished.
 
         worker->requestWork();
 
-
-
     }
 
+    //Destructor
     ~Visualization(){
-      /**
-      * The program is stuck at "thread->wait()" since "_abort" in Worker is never used.
-      * To solve this we need shared memory, etc.
-      * The window is closed, but ViennaTS still runs and sends data to visualization as deconstructor
-      * is done only after ViennaTS is done.
-      */
+
         worker->abort();
         thread->quit();
         thread->wait();
@@ -76,6 +79,13 @@ public:
 
     }
 
+    /**
+    *@brief Set up the graph
+    *
+    * Create a Q3DScatter graph and a container that holds it. Configure display and render properties and initialize
+    * variables.
+    * This method is called only once from the constructor.
+    */
   void initGraph(){
 
     graph = new Q3DScatter();
@@ -87,7 +97,6 @@ public:
     container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     container->setFocusPolicy(Qt::StrongFocus);
     //container->setWindowTitle(QStringLiteral("ViennaTS"));
-
 
     graph->activeTheme()->setType(Q3DTheme::ThemePrimaryColors);
     graph->setAspectRatio(1.0);
@@ -107,9 +116,8 @@ public:
     for(int i = 0; i<3; i++){
       graph->addSeries(new QScatter3DSeries);
       graph->seriesList().at(i)->setMesh(QAbstract3DSeries::MeshPoint);
-      //graph->seriesList().at(i)->userDefinedMesh(QString("myMesh"));
       graph->seriesList().at(i)->setMeshSmooth(false);
-      graph->seriesList().at(i)->setItemLabelFormat(QStringLiteral("@xTitle: @xLabel @yTitle: @yLabel @zTitle: @zLabel"));
+      //graph->seriesList().at(i)->setItemLabelFormat(QStringLiteral("@xTitle: @xLabel @yTitle: @yLabel @zTitle: @zLabel"));
       //graph->seriesList().at(i)->setItemLabelVisible(false);
     }
     graph->seriesList().at(0)->setBaseColor(Qt::green);
@@ -121,7 +129,7 @@ public:
     graph->axisY()->setTitle("Y");
     graph->axisZ()->setTitle("Z");
 
-    //isAxisSet = false;
+    isAxisSet = false;
     xMin = 0;
     xMax = 0;
     yMin = 0;
@@ -130,9 +138,13 @@ public:
     zMax = 0;
 
     setCentralWidget(container);
-    //container->show();
+    winOpen = true;
   }
 
+  /**
+  * @brief Add the LevelSet points to the graph and display them.
+  *
+  */
   void addData(){
 
     if(pCount > 0){
@@ -174,12 +186,21 @@ public:
       std::cout << "Count of pos: " << graph->seriesList().at(0)->dataProxy()->itemCount() << std::endl;
       std::cout << "Count of neg: " << graph->seriesList().at(1)->dataProxy()->itemCount() << std::endl;
       std::cout << "Count of zer: " << graph->seriesList().at(2)->dataProxy()->itemCount() << std::endl;
-      //std::cout << "Current FPS: " << graph->currentFps() << std::endl;
+
 #endif
 
     }
   }
 
+  /**
+  * @brief Take LevelSet values and insert them to the internal list (PointVector).
+  *
+  * Take the x, y and z coordinates and rearange them according to open_boundary_direction and its sign.
+  * Add coordinates to PointVector only if its absolute distance is less or equal to 1. Also the number of positive,
+  * negative and 'zero' distance points is updated.
+  * If isAxisSet is false, that is, the method is called the first time, getMinMax is called to determine a boundary for
+  * the graph dispay area. Afterwards the axis scale can't be changed.
+  */
 	void addPoint(qreal x, qreal y, qreal z, qreal dist, int open_boundary_direction, bool is_open_boundary_negative){
 		if(fabs(dist) <= 1){
       //set Orientation
@@ -241,6 +262,9 @@ public:
     }
 	}
 
+  /**
+  * @brief Clear the PointVector and reset the count values.
+  */
   void resetData(){
     if(!PointVector.isEmpty()){
       PointVector.clear();
@@ -250,6 +274,13 @@ public:
     nCount = 0;
   }
 
+  /**
+  * @brief Set the axis range and mark them fixed.
+  *
+  * After the first LevelSets are rendered, this method fixes the axis range depending on the
+  * minimum and maximum positions of each coordinate inkl. a small offset. To ensure that the axis are only
+  * set once, the boolean variable isAxisSet is set to true at the first call.
+  */
   void setAxisFixed(){
     if(!isAxisSet){
       isAxisSet = true;
@@ -263,8 +294,19 @@ public:
     }
   }
 
+  /**
+  * @brief Check if window is open or closed. Used only for process interruption.
+  */
+  bool windowOpen(){
+    return winOpen;
+  }
+
 
 private:
+
+  /**
+  *@brief Calculate the minimum and maximum values of each coordinate.
+  */
   void getMinMax(qreal x, qreal y, qreal z){
     if(x < xMin){
       xMin = x;
@@ -287,51 +329,50 @@ private:
       zMax = z;
     }
   }
-/*
-  void closeEvent(QCloseEvent *event){
-    qDebug() << "close event triggerd";
 
-    QMessageBox::StandardButton qBtn = QMessageBox::question( this, "ViennaTS", tr("Do you want to quit?\n"), QMessageBox::No | QMessageBox::Yes, QMessageBox::Yes);
-    if(qBtn == QMessageBox::Yes){
-      event->accept();
-    }
-    else{
-      event->ignore();
-    }
+  /**
+  *@brief Handels the close window event by setting the variable winOpen to false.
+  */
+  void closeEvent(QCloseEvent *event){
+    qDebug() << "close event triggerd in "<<this->QObject::thread()->currentThreadId();
+    winOpen = false;
+    //worker->abort();
   }
-*/
 
 private:
-  QVector<QVector4D> PointVector;
-  Q3DScatter *graph;
-  QWidget *container;
-  int pCount;
-  int nCount;
-  int zCount;
-  QScatterDataArray *pDat = new QScatterDataArray;
+  QVector<QVector4D> PointVector; //holds the LevelSet Points
+  Q3DScatter *graph; //the displayed graph
+  QWidget *container; //container holding the graph
+  int pCount; //counter for number of Points in PointVector with positive distance
+  int nCount; //counter negative distance
+  int zCount; //counter no distance
+  QScatterDataArray *pDat = new QScatterDataArray; //required structures for Q3DScatter graph
   QScatterDataArray *nDat = new QScatterDataArray;
   QScatterDataArray *zDat = new QScatterDataArray;
   QScatterDataItem *pPtr;
   QScatterDataItem *nPtr;
   QScatterDataItem *zPtr;
-  bool isAxisSet;
-  qreal xMin, xMax, yMin, yMax, zMin, zMax;
+  bool isAxisSet; //used to ensure that axis are only set once
+  qreal xMin, xMax, yMin, yMax, zMin, zMax; //used get range for axis
+  bool winOpen; //true if window is open, else false
 
 };
 
 namespace lvlset{
-    //Pass points to Qt in visualization.hpp
-
+    /**
+    *@brief Pass LevelSets to Qt in visualization.hpp
+    */
     template <class LevelSetsType>
     void create_visual(const LevelSetsType& LevelSets, Visualization& window, int open_boundary_direction, bool is_open_boundary_negative){
       const int D=LevelSetsType::value_type::dimensions;
 
+      //clear the graph data from the previous call
       window.resetData();
 
       //Iterate over all LevelSets
+      //If last LevelSet is added, draw the graph
       typename LevelSetsType::const_iterator it=LevelSets.begin();
       for (unsigned int i=0;i<LevelSets.size();i++) {
-        //If last LevelSet is added, draw the graph
         if (i!=LevelSets.size()-1){
           add_to_visual(*it, open_boundary_direction, is_open_boundary_negative, D, window);
         }
@@ -341,12 +382,14 @@ namespace lvlset{
         }
         it++;
       }
+      //fix the axis scale. Effect only on first call.
       window.setAxisFixed();
     }
 
 
-
-
+    /**
+    *@brief Add points of a LevelSet to Qt in visualization.hpp.
+    */
     template <class LevelSetType>
     void add_to_visual(const LevelSetType& ls, int open_boundary_direction, bool is_open_boundary_negative, const int D, Visualization& window){
         for(typename LevelSetType::const_iterator_runs it(ls); !it.is_finished(); it.next()){

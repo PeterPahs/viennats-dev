@@ -736,14 +736,13 @@ int main(int argc, char *argv[]) {
 
 	#ifdef GUI_ENABLED
 	//Spawn GUI thread and worker thread
-	//omp_set_nested(true);
 	std::cout << "Started GUI." << std::endl;
-	QApplication visualTS(argc, argv);
-	Qwindow = new Visualization(argv[1]);
+	QApplication visualTS(argc, argv); //start the Qt Application
+	Qwindow = new Visualization(argv[1]); //initialize the Qwindow
 	Qwindow->setWindowTitle("ViennaTS");
 	Qwindow->resize(800, 600);
 	Qwindow->show();
-	ret_val = visualTS.exec();
+	ret_val = visualTS.exec(); //returns after Qwindow is closed
 	delete Qwindow;
 	#endif
 
